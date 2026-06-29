@@ -1,5 +1,7 @@
 import Conversation from "../models/Conversation.js"
 import Message from "../models/Message.js"
+import { io } from "../socket/index.js"
+
 
 export const createConversation = async (req, res) => {
   try {
@@ -85,10 +87,10 @@ export const getConversation = async (req, res) => {
         joinedAt: p.joinedAt,
       }))
       const unreadCounts =
-        convo.unreadCount instanceof Map
-          ? Object.fromEntries(convo.unreadCount)
-          : convo.unreadCount && typeof convo.unreadCount === "object"
-            ? convo.unreadCount
+        convo.unreadCounts instanceof Map
+          ? Object.fromEntries(convo.unreadCounts)
+          : convo.unreadCounts && typeof convo.unreadCounts === "object"
+            ? convo.unreadCounts
             : {}
 
       const lastMessage =
@@ -157,5 +159,59 @@ export const getUserConversationForSocketIO = async (userId) => {
   } catch (error) {
     console.error("Lỗi khi fetch conversations: ", error);
     return [];
+  }
+}
+export const markAsSeen = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user._id.toString();
+    const conversation = await Conversation.findById(conversationId).lean()
+    if (!conversation) {
+      return res.status(404).json({ message: "Conversation không tồn tại" })
+    }
+    const last = conversation.lastMessage;
+    if (!last) {
+      return res.status(200).json({ message: "Không có tin nhắn để mark as seen" })
+    }
+    if (last.senderId.toString() === userId) {
+      return res.status(200).json({ message: 'Sender không cần mark as seen' })
+    }
+    const updated = await Conversation.findByIdAndUpdate(conversationId, {
+      $addToSet: { seenBy: userId },
+      $set: { [`unreadCounts.${userId}`]: 0 }
+    }, {
+      new: true
+    });
+
+    const unreadCounts = updated?.unreadCounts
+      ? Object.fromEntries(updated.unreadCounts)
+      : {};
+
+    const formattedConversation = {
+      ...updated?.toObject(),
+      unreadCounts,
+    };
+
+    io.to(conversationId).emit("read-message", {
+      conversation: formattedConversation,
+      lastMessage: {
+        _id: updated?.lastMessage?._id,
+        content: updated?.lastMessage?.content,
+        createdAt: updated?.lastMessage?.createdAt,
+        sender: {
+          _id: updated?.lastMessage?.senderId
+        }
+      }
+    })
+    res.status(200).json({
+      message: "Marked as seen",
+      seenBy: updated?.seenBy || [],
+      myUnreadCount: unreadCounts[userId] || 0,
+    })
+  } catch (error) {
+    console.error(" Lỗi khi mark as seen", error);
+    res.status(500).json({
+      message: "Lỗi hệ thống "
+    })
   }
 }

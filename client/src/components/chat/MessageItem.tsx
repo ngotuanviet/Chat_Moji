@@ -29,6 +29,7 @@ const MessageItem = ({
   const participant = selectedConvo.participants.find(
     (p: Participant) => p._id.toString() === message.senderId.toString(),
   );
+
   return (
     <div
       className={cn(

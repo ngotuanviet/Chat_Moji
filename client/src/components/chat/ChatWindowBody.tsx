@@ -1,6 +1,7 @@
 import { useChatStore } from "@/stores/useChatStore";
 import ChatWelComeScreen from "./ChatWelComeScreen";
 import MessageItem from "./MessageItem";
+import { useEffect, useState } from "react";
 
 const ChatWindowBody = () => {
   const {
@@ -8,11 +9,21 @@ const ChatWindowBody = () => {
     conversations,
     messages: allMessages,
   } = useChatStore();
+  const [lastMessageStatus, setLastMessageStatus] = useState<
+    "delivered" | "seen"
+  >("delivered");
   const messages = allMessages[activeConversationId!]?.items ?? [];
   const selectedConvo = conversations.find(
     (c) => c._id === activeConversationId,
   );
-
+  useEffect(() => {
+    const lastMessage = selectedConvo?.lastMessage;
+    if (!lastMessage) {
+      return;
+    }
+    const seenBy = selectedConvo?.seenBy ?? [];
+    setLastMessageStatus(seenBy.length > 0 ? "seen" : "delivered");
+  }, [selectedConvo]);
   if (!selectedConvo) {
     return <ChatWelComeScreen />;
   }
@@ -20,7 +31,9 @@ const ChatWindowBody = () => {
   if (!messages?.length) {
     return (
       <div className='flex h-full items-center justify-center text-muted-foreground'>
-        {"Ch\u01b0a c\u00f3 tin nh\u1eafn n\u00e0o trong cu\u1ed9c tr\u00f2 chuy\u1ec7n"}
+        {
+          "Ch\u01b0a c\u00f3 tin nh\u1eafn n\u00e0o trong cu\u1ed9c tr\u00f2 chuy\u1ec7n"
+        }
       </div>
     );
   }
@@ -35,7 +48,7 @@ const ChatWindowBody = () => {
             index={i}
             messages={messages}
             selectedConvo={selectedConvo}
-            lastMessageStatus='delivered'
+            lastMessageStatus={lastMessageStatus}
           />
         ))}
       </div>

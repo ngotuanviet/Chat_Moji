@@ -36,7 +36,7 @@ const signUp = async (req, res) => {
       username,
       hashedPassword,
       email,
-      displayName: `${lastName} ${firstName}`,
+      displayName: `${firstName} ${lastName}`,
     });
 
     return res.status(201).json({

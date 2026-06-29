@@ -69,4 +69,8 @@ export const chatService = {
     });
     return res.data.message;
   },
+  async markAsSeen(conversationId: string) {
+    const res = await api.patch(`/conversations/${conversationId}/seen`);
+    return res.data;
+  },
 };

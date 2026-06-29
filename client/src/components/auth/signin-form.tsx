@@ -65,7 +65,7 @@ export function SigninForm({
                 <Label htmlFor='password'>Mật khẩu</Label>
                 <Input
                   id='password'
-                  type='text'
+                  type='password'
                   placeholder='password'
                   {...register("password")}
                 />
