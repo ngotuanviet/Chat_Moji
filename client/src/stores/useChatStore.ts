@@ -90,6 +90,9 @@ export const useChatStore = create<ChatState>()(
             const convoId = activeConversationId || sentMessage.conversationId;
             if (convoId) {
               const currentMessages = messages[convoId]?.items || [];
+              if (currentMessages.some((m) => m._id === sentMessage._id)) {
+                return { conversations };
+              }
               messages[convoId] = {
                 ...messages[convoId],
                 items: [...currentMessages, { ...sentMessage, isOwn: true }],
@@ -115,6 +118,9 @@ export const useChatStore = create<ChatState>()(
             const messages = { ...state.messages };
             if (conversationId) {
               const currentMessages = messages[conversationId]?.items || [];
+              if (currentMessages.some((m) => m._id === sentMessage._id)) {
+                return { conversations };
+              }
               messages[conversationId] = {
                 ...messages[conversationId],
                 items: [...currentMessages, { ...sentMessage, isOwn: true }],

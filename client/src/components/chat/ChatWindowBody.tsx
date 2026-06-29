@@ -31,9 +31,7 @@ const ChatWindowBody = () => {
   if (!messages?.length) {
     return (
       <div className='flex h-full items-center justify-center text-muted-foreground'>
-        {
-          "Ch\u01b0a c\u00f3 tin nh\u1eafn n\u00e0o trong cu\u1ed9c tr\u00f2 chuy\u1ec7n"
-        }
+        {"Chưa có cuộc trò chuyện nào"}
       </div>
     );
   }

@@ -126,7 +126,7 @@ export function SignupForm({
           </form>
           <div className='bg-muted relative hidden md:block'>
             <img
-              src='public/placeholderSignup.png'
+              src='placeholderSignup.png'
               alt='Image'
               className='absolute top-1/2 -translate-y-1/2 object-cover'
             />

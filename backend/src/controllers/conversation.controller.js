@@ -15,7 +15,7 @@ export const createConversation = async (req, res) => {
       const participantId = memberIds[0]
 
       if (!participantId) {
-        return res.status(400).json({ message: "Conversation direct cáº§n 1 ngÆ°á»i tham gia" })
+        return res.status(400).json({ message: "Conversation direct cá nhân cần 1 người tham gia" })
       }
 
       conversation = await Conversation.findOne({
