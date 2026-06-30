@@ -54,7 +54,7 @@ export function SignupForm({
                   <Label htmlFor='lastname'>Họ</Label>
                   <Input id='lastname' type='text' {...register("lastname")} />
                   {errors.lastname && (
-                    <p className='text-sm text-red-600'>
+                    <p className='error-message text-red-600'>
                       {errors.lastname.message}
                     </p>
                   )}
@@ -67,7 +67,7 @@ export function SignupForm({
                     {...register("firstname")}
                   />
                   {errors.firstname && (
-                    <p className='text-sm text-red-600'>
+                    <p className='error-message text-red-600'>
                       {errors.firstname.message}
                     </p>
                   )}
@@ -82,7 +82,7 @@ export function SignupForm({
                   {...register("username")}
                 />
                 {errors.username && (
-                  <p className='text-sm text-red-600'>
+                  <p className='error-message text-red-600'>
                     {errors.username.message}
                   </p>
                 )}
@@ -96,7 +96,9 @@ export function SignupForm({
                   {...register("email")}
                 />
                 {errors.email && (
-                  <p className='text-sm text-red-600'>{errors.email.message}</p>
+                  <p className='error-message text-red-600'>
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
               <div className='flex flex-col gap-3'>
@@ -108,7 +110,7 @@ export function SignupForm({
                   {...register("password")}
                 />
                 {errors.password && (
-                  <p className='text-sm text-red-600'>
+                  <p className='error-message text-red-600'>
                     {errors.password.message}
                   </p>
                 )}

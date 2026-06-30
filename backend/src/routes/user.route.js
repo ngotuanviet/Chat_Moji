@@ -1,7 +1,8 @@
 import express from "express";
-import { authMe, test } from "../controllers/user.controller.js";
+import { authMe, searchUserByUsername, test } from "../controllers/user.controller.js";
 
 const router = express.Router();
 router.get("/me", authMe);
 router.get("/test", test);
+router.get("/search", searchUserByUsername)
 export default router;

@@ -56,7 +56,7 @@ export function SigninForm({
                   {...register("username")}
                 />
                 {errors.username && (
-                  <p className='text-sm text-red-600'>
+                  <p className='error-message text-red-600'>
                     {errors.username.message}
                   </p>
                 )}
@@ -70,7 +70,7 @@ export function SigninForm({
                   {...register("password")}
                 />
                 {errors.password && (
-                  <p className='text-sm text-red-600'>
+                  <p className='error-message text-red-600'>
                     {errors.password.message}
                   </p>
                 )}
