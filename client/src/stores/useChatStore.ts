@@ -4,7 +4,6 @@ import type { ChatState } from "@/types/store";
 import { chatService } from "@/services/chatService";
 
 import { useAuthStore } from "./useAuthStore";
-import { PawPrint } from "lucide-react";
 export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({

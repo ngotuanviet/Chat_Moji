@@ -16,7 +16,7 @@ const normalizeConversation = (
   unreadCounts: conversation.unreadCounts ?? conversation.unreadCount ?? {},
 });
 
-const pageLimit = 50;
+const pageLimit = 20;
 export const chatService = {
   async fetchConversations(): Promise<Conversation[]> {
     const res = await api.get<Conversation[] | ConversationResponse>(
