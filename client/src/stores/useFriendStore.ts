@@ -4,6 +4,8 @@ import type { FriendState } from "@/types/store";
 import { create } from "zustand";
 export const useFriendStore = create<FriendState>((set, get) => ({
   loading: false,
+  receivedList: [],
+  sendList: [],
   searchByUsername: async (username) => {
     try {
       set({ loading: true });
@@ -24,6 +26,45 @@ export const useFriendStore = create<FriendState>((set, get) => ({
     } catch (error) {
       console.error("Lỗi xảy ra khi addFriend", error);
       return "Lỗi xảy ra khi gửi kết bạn. Hãy thử lại";
+    } finally {
+      set({ loading: false });
+    }
+  },
+  getAllFriendRequests: async () => {
+    try {
+      set({ loading: true });
+      const result = await friendService.getAllFriendRequest();
+      if (!result) return;
+      const { received, sent } = result;
+      set({ receivedList: received, sendList: sent });
+    } catch (error) {
+      console.error("Lỗi xảy ra khi getAllFriendRequests", error);
+    } finally {
+      set({ loading: false });
+    }
+  },
+  acceptRequest: async (requestId) => {
+    try {
+      set({ loading: true });
+      await friendService.acceptRequest(requestId);
+      set((state) => ({
+        receivedList: state.receivedList.filter((r) => r._id !== requestId),
+      }));
+    } catch (error) {
+      console.error("Lỗi xảy ra khi acceptRequest", error);
+    } finally {
+      set({ loading: false });
+    }
+  },
+  declineRequest: async (requestId) => {
+    try {
+      set({ loading: true });
+      await friendService.declineRequest(requestId);
+      set((state) => ({
+        receivedList: state.receivedList.filter((r) => r._id !== requestId),
+      }));
+    } catch (error) {
+      console.error("Lỗi xảy ra khi declineRequest", error);
     } finally {
       set({ loading: false });
     }

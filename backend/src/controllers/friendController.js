@@ -4,6 +4,9 @@ import FriendRequest from "../models/FriendRequest.js";
 export const sendFriendRequest = async (req, res) => {
   try {
     const { to, message } = req.body;
+    console.log('====================================');
+    console.log(to, message);
+    console.log('====================================');
     const from = req.user._id;
     if (from === to) {
       return res.status(400).json({
@@ -95,8 +98,10 @@ export const acceptFriendRequest = async (req, res) => {
 export const declineFriendRequest = async (req, res) => {
   try {
     const { requestId } = req.params
+
     const userId = req.user._id
     const request = await FriendRequest.findById(requestId)
+
     if (!request) {
       return res.status(404).json({
         message: 'Không tìm thấy lời mời kết bạn'
@@ -147,9 +152,9 @@ export const getFriendsRequests = async (req, res) => {
     const populateFields = '_id username displayName avatarUrl';
     const [sent, received] = await Promise.all([
       FriendRequest.find({ from: userID }).populate("to", populateFields),
-      FriendRequest.find({ from: userID }).populate("from", populateFields)
-
+      FriendRequest.find({ to: userID }).populate("from", populateFields)
     ])
+
     res.status(200).json({
       sent,
       received

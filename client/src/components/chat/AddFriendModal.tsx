@@ -20,7 +20,7 @@ export interface IFormValues {
   username: string;
 }
 function AddFriendModal() {
-  const [isFound, setIsFound] = useState<boolean | null>(false);
+  const [isFound, setIsFound] = useState<boolean | null>(null);
   const [seachUser, setSearchUser] = useState<User>();
 
   const [searchedUsername, setSearchedUsername] = useState("");
