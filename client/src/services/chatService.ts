@@ -7,16 +7,28 @@ interface FetchMessageProps {
 }
 
 const normalizeConversation = (
-  conversation: Conversation & {
-    unreadCount?: Record<string, number>;
-    unreadCounts?: Record<string, number>;
-  },
-): Conversation => ({
-  ...conversation,
-  unreadCounts: conversation.unreadCounts ?? conversation.unreadCount ?? {},
-});
+  conversation: any
+): Conversation => {
+  const participants = (conversation.participants || []).map((p: any) => {
+    if (p.userId && typeof p.userId === "object") {
+      return {
+        _id: p.userId._id,
+        displayName: p.userId.displayName,
+        avatarUrl: p.userId.avatarUrl ?? null,
+        joinedAt: p.joinedAt,
+      };
+    }
+    return p;
+  });
 
-const pageLimit = 20;
+  return {
+    ...conversation,
+    participants,
+    unreadCounts: conversation.unreadCounts ?? conversation.unreadCount ?? {},
+  };
+};
+
+const pageLimit = 50;
 export const chatService = {
   async fetchConversations(): Promise<Conversation[]> {
     const res = await api.get<Conversation[] | ConversationResponse>(
@@ -72,5 +84,17 @@ export const chatService = {
   async markAsSeen(conversationId: string) {
     const res = await api.patch(`/conversations/${conversationId}/seen`);
     return res.data;
+  },
+  async createConversation(
+    type: "direct" | "group",
+    name: string,
+    memberIds: string[],
+  ) {
+    const res = await api.post<{ conversation: any }>("/conversations", {
+      type,
+      name,
+      memberIds,
+    });
+    return normalizeConversation(res.data.conversation);
   },
 };

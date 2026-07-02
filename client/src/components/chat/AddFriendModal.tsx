@@ -1,12 +1,14 @@
-import SearchForm from "@/components/AddFriendModal/SearchForm";
-import SendFriendRequestForm from "@/components/AddFriendModal/SendFriendRequestForm";
+import SearchForm from "@/components/addFriendModal/SearchForm";
+import SendFriendRequestForm from "@/components/addFriendModal/SendFriendRequestForm";
 import { DialogHeader } from "@/components/ui/dialog";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { SidebarGroupAction } from "@/components/ui/sidebar";
 import { useFriendStore } from "@/stores/useFriendStore";
 import type { User } from "@/types/user";
 import { UserPlus } from "lucide-react";
@@ -72,15 +74,18 @@ function AddFriendModal() {
   };
   return (
     <Dialog>
-      <DialogTrigger>
-        <div className='flex justify-center items-center size-5 rounded-full hover:bg-sidebar-accent cursor-pointer z-10'>
-          <UserPlus className='size-4' />
-          <span className='sr-only'>Kết bạn</span>
-        </div>
+      <DialogTrigger asChild>
+        <SidebarGroupAction title="Kết bạn" className="cursor-pointer">
+          <UserPlus />
+          <span className="sr-only">Kết bạn</span>
+        </SidebarGroupAction>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px] border-none'>
         <DialogHeader>
           <DialogTitle> Kết bạn</DialogTitle>
+          <DialogDescription className="sr-only">
+            Tìm kiếm và gửi lời mời kết bạn mới.
+          </DialogDescription>
           {!isFound && (
             <>
               <SearchForm
