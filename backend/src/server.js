@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import { v2 as cloudinary } from 'cloudinary'
 import { ConnectDB } from "./libs/db.js";
 import authRoute from "./routes/auth.route.js";
 import messageRoute from "./routes/message.route.js"
@@ -14,6 +15,13 @@ import fs from 'fs'
 import { protectedRoute } from "./middleware/auth.middleware.js";
 
 dotenv.config();
+// config upload Image
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_APIKEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
+});
+// Port
 const port = process.env.PORT || 5001;
 // middleware
 app.use(express.json());
