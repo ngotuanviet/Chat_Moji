@@ -55,6 +55,11 @@ export const createConversation = async (req, res) => {
       { path: 'seenBy', select: "displayName avatarUrl" },
       { path: "lastMessage.senderId", select: "displayName avatarUrl" }
     ])
+    if (type === "group") {
+      memberIds.forEach(userId => {
+        io.to(userId).emit('new-group', conversation)
+      });
+    }
     return res.status(201).json({ conversation })
 
   } catch (error) {
@@ -65,6 +70,8 @@ export const createConversation = async (req, res) => {
 }
 export const getConversation = async (req, res) => {
   try {
+
+
     const userId = req.user._id
     const conversations = await Conversation.find({
       'participants.userId': userId
@@ -114,6 +121,7 @@ export const getConversation = async (req, res) => {
         participants,
       }
     })
+
     return res.status(200).json({ conversations: formatted });
   } catch (error) {
     console.error("Lỗi xảy ra khi lấy conversations", error);
