@@ -5,6 +5,7 @@ export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
       isDark: false,
+
       toggleTheme: () => {
         const newValue = !get().isDark;
         set({ isDark: newValue });

@@ -1,5 +1,14 @@
+import PersonalInfoForm from "@/components/profile/PersonalInfoForm";
+import PreferencesForm from "@/components/profile/PreferencesForm ";
+import PrivacySettings from "@/components/profile/PrivacySettings";
 import ProfileCard from "@/components/profile/ProfileCard";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -19,11 +28,42 @@ const ProfileDialog = ({ open, setOpen }: ProfileDialogProps) => {
               <DialogTitle className='text-2xl font-bold text-foreground '>
                 Profile & Settings
               </DialogTitle>
-              <DialogDescription className="sr-only">
+              <DialogDescription className='sr-only'>
                 Chỉnh sửa thông tin cá nhân và cài đặt hình đại diện của bạn.
               </DialogDescription>
             </div>
             <ProfileCard user={user} />
+            <Tabs defaultValue='personal' className='my-4'>
+              <TabsList className='grid w-full grid-cols-3 glass-light'>
+                <TabsTrigger
+                  value='personal'
+                  className='data-[state=active]:glass-strong'
+                >
+                  Tài khoản
+                </TabsTrigger>
+                <TabsTrigger
+                  value='preferences'
+                  className='data-[state=active]:glass-strong'
+                >
+                  Cấu hình
+                </TabsTrigger>
+                <TabsTrigger
+                  value='privacy'
+                  className='data-[state=active]:glass-strong'
+                >
+                  Bảo mật
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value='personal'>
+                <PersonalInfoForm userInfo={user} />
+              </TabsContent>
+              <TabsContent value='preferences'>
+                <PreferencesForm />
+              </TabsContent>
+              <TabsContent value='privacy'>
+                <PrivacySettings />
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </DialogContent>
