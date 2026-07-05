@@ -54,13 +54,33 @@ const uploadAvatar = async (req, res) => {
     if (!updatedUser.avatarUrl) {
       return res.status(400).json({ message: "Avatar trả về null" })
     }
-    return res.status(200).json({ 
-      message: "Cập nhật avatar thành công", 
-      avatarUrl: updatedUser.avatarUrl 
+    return res.status(200).json({
+      message: "Cập nhật avatar thành công",
+      avatarUrl: updatedUser.avatarUrl
     })
   } catch (error) {
     console.error("Lỗi xảy ra khi upload avatar", error);
     return res.status(500).json("Upload failed")
   }
 }
-export { authMe, test, uploadAvatar };
+const updatedUserInfo = async (req, res) => {
+  try {
+    const userId = req.user._id
+    const { displayName, username, email, phone, bio } = req.body
+    const updatedUserInfo = await User.findByIdAndUpdate(userId, {
+      displayName, username, email, phone, bio
+    }).select("displayName, username, email, phone, bio")
+    res.status(200).json({
+      userInfo: {
+        displayName, username, email, phone, bio
+      }
+    })
+  } catch (error) {
+    console.error("Lỗi cập nhật thông tin user", error);
+    res.status(500).json({
+      message: `Thay đổi thông tin user lỗi`
+    })
+
+  }
+}
+export { authMe, test, uploadAvatar, updatedUserInfo };

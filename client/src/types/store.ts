@@ -85,4 +85,6 @@ export interface FriendState {
 }
 export interface UserState {
   updateAvatarUrl: (formData: FormData) => Promise<void>;
+  updateInfo: (data: Partial<User>) => Promise<void>;
 }
+

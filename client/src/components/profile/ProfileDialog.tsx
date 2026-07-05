@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "@/stores/useAuthStore";
-import type { Dispatch, SetStateAction } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 
 interface ProfileDialogProps {
   open: boolean;
@@ -18,6 +18,7 @@ interface ProfileDialogProps {
 }
 const ProfileDialog = ({ open, setOpen }: ProfileDialogProps) => {
   const { user } = useAuthStore();
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className='overflow-y-auto p-0 bg-transparent border-0 shadow-2xl'>
