@@ -42,7 +42,7 @@ export function SignupForm({
             <div className='flex flex-col gap-6'>
               <div className='flex flex-col items-center gap-2 text-center'>
                 <a href='' className='mx-auto block w-fit text-center'>
-                  <img src='public/logo.svg' alt='Logo' />
+                  <img src='/logo.svg' alt='Logo' />
                 </a>
                 <h1 className='text-2xl font-bold'>Tạo tài khoản</h1>
                 <p className='text-muted-foreground text-balance'>
@@ -128,7 +128,7 @@ export function SignupForm({
           </form>
           <div className='bg-muted relative hidden md:block'>
             <img
-              src='placeholderSignup.png'
+              src='/placeholderSignUp.png'
               alt='Image'
               className='absolute top-1/2 -translate-y-1/2 object-cover'
             />
