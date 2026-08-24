@@ -17,7 +17,7 @@ interface ProfileDialogProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 const ProfileDialog = ({ open, setOpen }: ProfileDialogProps) => {
-  const { user } = useAuthStore();
+  const { user, loading } = useAuthStore();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

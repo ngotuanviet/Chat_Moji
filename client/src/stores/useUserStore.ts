@@ -26,9 +26,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     try {
       const { user, setUser } = useAuthStore.getState();
       const res = await userService.updateInfo(data);
-      console.log("====================================");
-      console.log(res);
-      console.log("====================================");
+
       if (user) {
         setUser({
           ...user,
