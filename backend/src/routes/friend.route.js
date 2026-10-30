@@ -5,7 +5,7 @@ import {
   declineFriendRequest,
   getAllFriends,
   getFriendsRequests,
-} from "../controllers/friendController.js";
+} from "../controllers/friend.controller.js";
 const router = express.Router();
 router.post("/requests", sendFriendRequest);
 router.post("/requests/:requestId/accept", acceptFriendRequest);

@@ -83,12 +83,18 @@ export const useChatStore = create<ChatState>()(
             imgUrl,
             activeConversationId || undefined,
           );
+          const convoId = activeConversationId || sentMessage.conversationId;
+          if (!activeConversationId && sentMessage.conversationId) {
+            set({ activeConversationId: sentMessage.conversationId });
+          }
           set((state) => {
-            const conversations = state.conversations.map((c) =>
-              c._id === activeConversationId ? { ...c, seenBy: [] } : c,
+            const safeConversations = Array.isArray(state.conversations)
+              ? state.conversations
+              : [];
+            const conversations = safeConversations.map((c) =>
+              c._id === convoId ? { ...c, seenBy: [] } : c,
             );
             const messages = { ...state.messages };
-            const convoId = activeConversationId || sentMessage.conversationId;
             if (convoId) {
               const currentMessages = messages[convoId]?.items || [];
               if (currentMessages.some((m) => m._id === sentMessage._id)) {
@@ -113,7 +119,10 @@ export const useChatStore = create<ChatState>()(
             imgUrl,
           );
           set((state) => {
-            const conversations = state.conversations.map((c) =>
+            const safeConversations = Array.isArray(state.conversations)
+              ? state.conversations
+              : [];
+            const conversations = safeConversations.map((c) =>
               c._id === get().activeConversationId ? { ...c, seenBy: [] } : c,
             );
             const messages = { ...state.messages };
@@ -166,10 +175,37 @@ export const useChatStore = create<ChatState>()(
       },
       updateConversaton: (conversation) => {
         set((state) => ({
-          conversations: state.conversations.map((c) =>
-            c._id === conversation._id ? { ...c, ...conversation } : c,
+          conversations: (Array.isArray(state.conversations)
+            ? state.conversations
+            : []
+          ).map((c) =>
+            c._id === (conversation as any)._id
+              ? { ...c, ...(conversation as any) }
+              : c,
           ),
         }));
+      },
+      upsertConversation: (convo) => {
+        set((state) => {
+          const safeConversations = Array.isArray(state.conversations)
+            ? state.conversations
+            : [];
+          const existingIndex = safeConversations.findIndex(
+            (c) => c._id === convo._id,
+          );
+          let updatedConversations: any[];
+          if (existingIndex > -1) {
+            const existing = safeConversations[existingIndex];
+            const merged = { ...existing, ...convo };
+            updatedConversations = [
+              merged,
+              ...safeConversations.filter((c) => c._id !== convo._id),
+            ];
+          } else {
+            updatedConversations = [convo, ...safeConversations];
+          }
+          return { conversations: updatedConversations };
+        });
       },
       markAsSeen: async () => {
         try {
@@ -207,11 +243,14 @@ export const useChatStore = create<ChatState>()(
       },
       addConvo: async (convo) => {
         set((state) => {
-          const exits = state.conversations.some((c) => c._id === convo._id);
+          const safeConversations = Array.isArray(state.conversations)
+            ? state.conversations
+            : [];
+          const exits = safeConversations.some((c) => c._id === convo._id);
           return {
             conversations: exits
-              ? state.conversations
-              : [convo, ...state.conversations],
+              ? safeConversations
+              : [convo, ...safeConversations],
             activeConversationId: convo._id,
           };
         });

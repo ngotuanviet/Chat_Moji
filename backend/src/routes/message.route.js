@@ -2,7 +2,7 @@ import express from 'express'
 import {
   sendDirectMessage,
   sendGroupMessage,
-} from '../controllers/messageController.js'
+} from '../controllers/message.controller.js'
 import { checkFriendShip, checkGroupMembership } from '../middleware/friend.Middleware.js';
 const router = express.Router();
 router.post('/direct', checkFriendShip, sendDirectMessage)

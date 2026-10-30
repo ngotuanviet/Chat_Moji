@@ -1,6 +1,8 @@
 import Friend from "../models/Friend.js";
 import User from "../models/User.js";
 import FriendRequest from "../models/FriendRequest.js";
+import { io } from "../socket/index.js";
+
 export const sendFriendRequest = async (req, res) => {
   try {
     const { to, message } = req.body;
@@ -46,6 +48,19 @@ export const sendFriendRequest = async (req, res) => {
       to,
       message,
     });
+
+    // Populate thông tin người gửi và người nhận
+    const populatedRequest = await FriendRequest.findById(request._id)
+      .populate("from", "_id displayName username avatarUrl")
+      .populate("to", "_id displayName username avatarUrl")
+      .lean();
+
+    // Gửi thông báo real-time đến người nhận qua socket
+    io.to(to.toString()).emit("friend-request", {
+      request: populatedRequest,
+      from: populatedRequest.from,
+    });
+
     return res
       .status(201)
       .json({ message: "Gửi lời mời kết bạn thành công", request });

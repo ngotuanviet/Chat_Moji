@@ -1,12 +1,15 @@
 import { friendService } from "@/services/friendService";
-
 import type { FriendState } from "@/types/store";
 import { create } from "zustand";
+import { useChatStore } from "./useChatStore";
+
 export const useFriendStore = create<FriendState>((set, get) => ({
   friends: [],
   loading: false,
   receivedList: [],
   sendList: [],
+  incomingRequestModal: { open: false, request: null },
+  setIncomingRequestModal: (modal) => set({ incomingRequestModal: modal }),
   searchByUsername: async (username) => {
     try {
       set({ loading: true });
@@ -51,8 +54,11 @@ export const useFriendStore = create<FriendState>((set, get) => ({
       set((state) => ({
         receivedList: state.receivedList.filter((r) => r._id !== requestId),
       }));
+      await get().getFriends();
+      await useChatStore.getState().fetchConversations();
     } catch (error) {
       console.error("Lỗi xảy ra khi acceptRequest", error);
+      throw error;
     } finally {
       set({ loading: false });
     }
@@ -66,6 +72,7 @@ export const useFriendStore = create<FriendState>((set, get) => ({
       }));
     } catch (error) {
       console.error("Lỗi xảy ra khi declineRequest", error);
+      throw error;
     } finally {
       set({ loading: false });
     }

@@ -57,6 +57,7 @@ export interface ChatState {
   addMessage: (message: Message) => Promise<void>;
   // update convo
   updateConversaton: (conversation: unknown) => void;
+  upsertConversation: (conversation: any) => void;
   markAsSeen: () => Promise<void>;
   addConvo: (convo: Conversation) => void;
   createConversation: (
@@ -76,6 +77,8 @@ export interface FriendState {
   friends: Friend[];
   receivedList: FriendRequest[];
   sendList: FriendRequest[];
+  incomingRequestModal: { open: boolean; request: FriendRequest | null };
+  setIncomingRequestModal: (modal: { open: boolean; request: FriendRequest | null }) => void;
   searchByUsername: (username: string) => Promise<User | null>;
   addFriend: (to: string, message?: string) => Promise<string>;
   getAllFriendRequests: () => Promise<void>;
@@ -87,4 +90,3 @@ export interface UserState {
   updateAvatarUrl: (formData: FormData) => Promise<void>;
   updateInfo: (data: Partial<User>) => Promise<void>;
 }
-
