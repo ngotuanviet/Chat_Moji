@@ -3,7 +3,7 @@ import {
   sendDirectMessage,
   sendGroupMessage,
 } from '../controllers/message.controller.js'
-import { checkFriendShip, checkGroupMembership } from '../middleware/friend.Middleware.js';
+import { checkFriendShip, checkGroupMembership } from '../middleware/friend.middleware.js';
 const router = express.Router();
 router.post('/direct', checkFriendShip, sendDirectMessage)
 router.post('/group', checkGroupMembership, sendGroupMessage)

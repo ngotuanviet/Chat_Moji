@@ -1,6 +1,6 @@
 import express from 'express'
 import { createConversation, getConversation, getMessages, markAsSeen } from '../controllers/conversation.controller.js'
-import { checkFriendShip } from '../middleware/friend.Middleware.js'
+import { checkFriendShip } from '../middleware/friend.middleware.js'
 
 const router = express.Router();
 router.post("/", checkFriendShip, createConversation)

@@ -12,6 +12,7 @@ import cookieParser from "cookie-parser";
 import { app, server } from "./socket/index.js"
 // import swaggerUi from 'swagger-ui-express';
 import fs from 'fs'
+import path from "path";
 import { protectedRoute } from "./middleware/auth.middleware.js";
 
 dotenv.config();
@@ -38,11 +39,23 @@ app.use(
 // public routes
 app.use("/api/auth", authRoute);
 // private routes
-app.use(protectedRoute);
-app.use("/api/user", userRoute);
-app.use("/api/friends", friendRoute);
-app.use('/api/messages', messageRoute);
-app.use("/api/conversations", conversationRoute)
+app.use("/api/user", protectedRoute, userRoute);
+app.use("/api/friends", protectedRoute, friendRoute);
+app.use('/api/messages', protectedRoute, messageRoute);
+app.use("/api/conversations", protectedRoute, conversationRoute);
+
+// static files for client
+const clientDist = path.join(path.resolve(), "client-dist");
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  app.use((req, res) => {
+    if (req.path.startsWith("/api")) {
+      return res.status(404).json({ message: "API route not found" });
+    }
+    res.sendFile(path.join(clientDist, "index.html"));
+  });
+}
+
 ConnectDB().then(() => {
   server.listen(port, () => {
     console.log(`server đang lắng nghe ở cổng ${port}`);
