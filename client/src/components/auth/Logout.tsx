@@ -9,14 +9,18 @@ const Logout = () => {
   const handleLogout = () => {
     try {
       signOut();
-      navigate("/login");
+      navigate("/signin");
     } catch (error) {
       console.error(error);
     }
   };
   return (
-    <Button variant='completeGhost' onClick={handleLogout}>
-      <LogOut className='text-destructive'></LogOut>
+    <Button
+      variant='ghost'
+      className='w-full justify-start p-0 h-auto hover:bg-transparent'
+      onClick={handleLogout}
+    >
+      <LogOut className='text-destructive' />
       <span className='text-destructive'>Log out</span>
     </Button>
   );

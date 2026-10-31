@@ -6,9 +6,10 @@ interface GroupChatAvatarProps {
   participants: Participant[];
   type: "chat" | "sidebar";
 }
+
 const GroupChatAvatar = ({ participants, type }: GroupChatAvatarProps) => {
   const avatars = [];
-  const limit = Math.min(participants.length, 4);
+  const limit = Math.min(participants.length, 3);
   for (let i = 0; i < limit; i++) {
     const member = participants[i];
     avatars.push(
@@ -21,11 +22,11 @@ const GroupChatAvatar = ({ participants, type }: GroupChatAvatarProps) => {
     );
   }
   return (
-    <div className='relative flex -space-x-2 *:data-[slot=avatar]:ring-background *:data-[slot=avatar]:ring-2'>
+    <div className='relative flex -space-x-3 *:data-[slot=avatar]:ring-background *:data-[slot=avatar]:ring-2'>
       {avatars}
       {participants.length > limit && (
-        <div className='flex items-center z-10 justify-center size-8 rounded-full bg-muted ring-2 ring-background text-muted-foreground'>
-          <Ellipsis className='size-4' />
+        <div className='flex items-center z-10 justify-center size-7 sm:size-8 rounded-full bg-muted ring-2 ring-background text-muted-foreground'>
+          <Ellipsis className='size-3.5 sm:size-4' />
         </div>
       )}
     </div>

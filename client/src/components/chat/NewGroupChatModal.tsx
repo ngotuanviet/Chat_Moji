@@ -7,74 +7,92 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useChatStore } from "@/stores/useChatStore";
 import { useFriendStore } from "@/stores/useFriendStore";
 import type { Friend } from "@/types/user";
-import { DialogTrigger } from "@radix-ui/react-dialog";
 import { UserPlusIcon, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 function NewGroupChatModal() {
+  const [open, setOpen] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [search, setSearch] = useState("");
   const [invitedUsers, setInvitedUsers] = useState<Friend[]>([]);
   const { friends, getFriends } = useFriendStore();
   const { loading, createConversation } = useChatStore();
+
   const handleGetFriends = async () => {
     await getFriends();
   };
+
   const filteredFriends = friends.filter(
     (friend) =>
       friend.displayName.toLowerCase().includes(search.toLowerCase()) &&
       !invitedUsers.some((u) => u._id === friend._id),
   );
+
   const handleSelectFriend = (friend: Friend) => {
     setInvitedUsers([...invitedUsers, friend]);
     setSearch("");
   };
+
   const handleRemoveFriend = (friend: Friend) => {
     setInvitedUsers(invitedUsers.filter((user) => user._id !== friend._id));
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
+      if (!groupName.trim()) {
+        toast.warning("Vui lòng nhập tên nhóm");
+        return;
+      }
       if (invitedUsers.length === 0) {
         toast.warning("Bạn phải mời ít nhất 1 người vào nhóm");
         return;
       }
       await createConversation(
         "group",
-        groupName,
+        groupName.trim(),
         invitedUsers.map((u) => u._id),
       );
       setSearch("");
+      setGroupName("");
       setInvitedUsers([]);
+      setOpen(false);
+      toast.success("Tạo nhóm chat thành công!");
     } catch (error) {
-      console.error("Lỗi xẩy ra khi handleSubmit trong newgroupchat:  ", error);
+      console.error("Lỗi xảy ra khi tạo nhóm chat: ", error);
+      toast.error("Không thể tạo nhóm chat. Vui lòng thử lại!");
     }
   };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant={"ghost"}
+          variant='ghost'
+          size='icon'
           onClick={handleGetFriends}
-          className='flex z-10 justify-center size-5 rounded-full hover:bg-sidebar-accent transition cursor-pointer'
+          className='size-7 sm:size-6 rounded-full hover:bg-sidebar-accent transition cursor-pointer'
         >
-          <Users className='size-4 ' />
+          <Users className='size-4' />
           <span className='sr-only'>Tạo nhóm</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-[425px] border-none'>
+      <DialogContent className='sm:max-w-[425px] border-none p-4 sm:p-6'>
         <DialogHeader>
-          <DialogTitle className='capitalize'> tạo nhóm chat mới</DialogTitle>
+          <DialogTitle className='capitalize text-lg sm:text-xl'>
+            Tạo nhóm chat mới
+          </DialogTitle>
         </DialogHeader>
         <form className='space-y-4' onSubmit={handleSubmit}>
-          {/* têm nhóm */}
+          {/* tên nhóm */}
           <div className='space-y-2'>
             <Label className='text-sm font-semibold' htmlFor='groupName'>
               Tên nhóm
@@ -82,7 +100,7 @@ function NewGroupChatModal() {
             <Input
               id='groupName'
               placeholder='Vui lòng nhập tên nhóm'
-              className=' glass border-border/50 focus:border-primary/50 transition-smooth'
+              className='glass border-border/50 focus:border-primary/50 transition-smooth h-10 sm:h-11'
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
               required
@@ -97,7 +115,8 @@ function NewGroupChatModal() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               id='invite'
-              placeholder='Tìm theo tên hiện thị'
+              placeholder='Tìm theo tên hiển thị'
+              className='glass border-border/50 focus:border-primary/50 transition-smooth h-10 sm:h-11'
             />
             {/* danh sách gợi ý bạn bè theo tên */}
             {search && filteredFriends.length > 0 && (
@@ -113,11 +132,11 @@ function NewGroupChatModal() {
               onRemove={handleRemoveFriend}
             />
           </div>
-          <DialogFooter>
+          <DialogFooter className='pt-2'>
             <Button
               type='submit'
               disabled={loading}
-              className='flex-1 bg-gradient-chat text-white hover:opacity-90 transition-smooth '
+              className='w-full h-11 bg-gradient-chat text-white hover:opacity-90 transition-smooth cursor-pointer'
             >
               {loading ? (
                 <span>Đang tạo...</span>

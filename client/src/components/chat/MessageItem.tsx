@@ -12,6 +12,7 @@ interface MessageItemProps {
   selectedConvo: Conversation;
   lastMessageStatus: "delivered" | "seen";
 }
+
 const MessageItem = ({
   message,
   index,
@@ -35,7 +36,7 @@ const MessageItem = ({
     <>
       {/* time */}
       {isShowTime && (
-        <span className='text-xs text-center text-muted-foreground px-1'>
+        <span className='text-xs text-center text-muted-foreground px-1 py-1'>
           {formatMessageTime(new Date(message.createdAt))}
         </span>
       )}
@@ -47,7 +48,7 @@ const MessageItem = ({
       >
         {/* avatar */}
         {!message.isOwn && (
-          <div className='w-8'>
+          <div className='w-8 shrink-0'>
             {isGroupBreak && (
               <UserAvatar
                 type='chat'
@@ -60,19 +61,19 @@ const MessageItem = ({
         {/* tin nhắn */}
         <div
           className={cn(
-            "max-w-xs lg:max-w-md space-y-1 flex flex-col",
+            "max-w-[85%] sm:max-w-[78%] md:max-w-[70%] lg:max-w-md space-y-1 flex flex-col",
             message.isOwn ? "items-end" : "items-start",
           )}
         >
           <Card
             className={cn(
-              "p-3",
+              "p-2.5 sm:p-3 rounded-2xl",
               message.isOwn
-                ? "chat-bubble-sent border-0"
-                : "bg-chat-bubble-received",
+                ? "chat-bubble-sent border-0 rounded-br-xs"
+                : "bg-chat-bubble-received rounded-bl-xs",
             )}
           >
-            <p className='text-sm leading-relaxed break-words'>
+            <p className='text-sm sm:text-base leading-relaxed break-words'>
               {message.content}
             </p>
           </Card>
@@ -82,7 +83,7 @@ const MessageItem = ({
             <Badge
               variant='outline'
               className={cn(
-                "text-xs px-1.5 py-0.5 h-4 border-0",
+                "text-[10px] sm:text-xs px-1.5 py-0.5 h-4 border-0",
                 lastMessageStatus === "seen"
                   ? "bg-primary/20 text-primary"
                   : "bg-muted text-muted-foreground",

@@ -13,7 +13,7 @@ import { useState } from "react";
 
 const PreferencesForm = () => {
   const { isDark, toggleTheme } = useThemeStore();
-  const [onlineStatus, setOnlineStatus] = useState();
+  const [onlineStatus, setOnlineStatus] = useState<boolean>(true);
 
   return (
     <Card className='glass-strong border-border/30'>

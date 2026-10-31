@@ -7,18 +7,26 @@ import UserAvatar from "./UserAvatar";
 import StatusBadge from "./StatusBadge";
 import GroupChatAvatar from "./GroupChatAvatar";
 import { useSocketStore } from "@/stores/useSocketStore";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
-  const { conversations, activeConversationId } = useChatStore();
+  const { conversations, activeConversationId, setActiveConversation } =
+    useChatStore();
   const { user } = useAuthStore();
   const { onlineUsers } = useSocketStore();
+  const isMobile = useIsMobile();
   let otherUser;
 
   chat = chat ?? conversations.find((c) => c._id === activeConversationId);
   if (!chat) {
     return (
-      <header className='sticky top-0 z-10 flex w-full shrink-0 items-center gap-2 border-b border-border/60 bg-background px-4 py-3 md:hidden'>
+      <header className='sticky top-0 z-10 flex w-full shrink-0 items-center gap-2 border-b border-border/60 bg-background px-3 sm:px-4 py-2.5 sm:py-3'>
         <SidebarTrigger className='-ml-1 text-foreground' />
+        <span className='text-sm font-semibold text-muted-foreground'>
+          Moji
+        </span>
       </header>
     );
   }
@@ -26,7 +34,7 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
   if (chat.type === "direct") {
     const otherUsers = chat.participants.filter((p) => p._id !== user?._id);
     otherUser = otherUsers.length > 0 ? otherUsers[0] : null;
-    if (!user || !otherUser) return;
+    if (!user || !otherUser) return null;
   }
 
   const directUserStatus =
@@ -35,15 +43,30 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
       : "offline";
 
   return (
-    <header className='sticky top-0 z-10 flex shrink-0 items-center border-b border-border/60 bg-background px-4 py-3'>
-      <div className='flex w-full items-center gap-2'>
-        <SidebarTrigger className='-ml-1 text-foreground' />
-        <Separator
-          orientation='vertical'
-          className='mr-2 data-[orientation=vertical]:h-4'
-        />
-        <div className='flex w-full items-center gap-3 p-2'>
-          <div className='relative'>
+    <header className='sticky top-0 z-10 flex shrink-0 items-center border-b border-border/60 bg-background/95 backdrop-blur-md px-2.5 sm:px-4 py-2 sm:py-3'>
+      <div className='flex w-full items-center gap-1.5 sm:gap-2 min-w-0'>
+        {isMobile ? (
+          <Button
+            variant='ghost'
+            size='icon'
+            className='size-9 shrink-0 text-foreground -ml-1 mr-0.5 hover:bg-muted/50 cursor-pointer'
+            onClick={() => setActiveConversation(null)}
+          >
+            <ArrowLeft className='size-5' />
+            <span className='sr-only'>Quay lại danh sách chat</span>
+          </Button>
+        ) : (
+          <>
+            <SidebarTrigger className='-ml-1 text-foreground' />
+            <Separator
+              orientation='vertical'
+              className='mr-2 data-[orientation=vertical]:h-4'
+            />
+          </>
+        )}
+
+        <div className='flex flex-1 items-center gap-2.5 sm:gap-3 min-w-0 py-0.5'>
+          <div className='relative shrink-0'>
             {chat.type === "direct" ? (
               <>
                 <UserAvatar
@@ -60,9 +83,18 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
               />
             )}
           </div>
-          <h2 className='font-semibold text-foreground'>
-            {chat.type === "direct" ? otherUser?.displayName : chat.group?.name}
-          </h2>
+          <div className='flex flex-col min-w-0 flex-1'>
+            <h2 className='font-semibold text-foreground text-sm sm:text-base truncate leading-snug'>
+              {chat.type === "direct" ? otherUser?.displayName : chat.group?.name}
+            </h2>
+            <span className='text-xs text-muted-foreground truncate'>
+              {chat.type === "direct"
+                ? directUserStatus === "online"
+                  ? "Đang hoạt động"
+                  : "Ngoại tuyến"
+                : `${chat.participants.length} thành viên`}
+            </span>
+          </div>
         </div>
       </div>
     </header>

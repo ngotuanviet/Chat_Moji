@@ -5,7 +5,7 @@ import type { UserState } from "@/types/store";
 import { toast } from "sonner";
 import { create } from "zustand";
 
-export const useUserStore = create<UserState>((set, get) => ({
+export const useUserStore = create<UserState>(() => ({
   updateAvatarUrl: async (formData) => {
     try {
       const { user, setUser } = useAuthStore.getState();

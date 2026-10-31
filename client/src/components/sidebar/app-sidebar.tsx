@@ -29,9 +29,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isDark, toggleTheme } = useThemeStore();
   const { user } = useAuthStore();
   const { convoLoading } = useChatStore();
+
   return (
     <Sidebar variant='inset' {...props}>
-      <SidebarHeader>
+      <SidebarHeader className='pt-[max(0.5rem,env(safe-area-inset-top))]'>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -39,20 +40,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className='bg-gradient-primary'
             >
-              <a href='#'>
-                <div className='flex w-full items-center justify-between px-2'>
-                  <h1 className='text-xl font-bold text-white'>Moji</h1>
-                  <div className='flex items-center gap-2'>
-                    <Sun className='size-4 text-white/80' />
-                    <Switch
-                      checked={isDark}
-                      onCheckedChange={toggleTheme}
-                      className='data-[state=checked]:bg-background/80'
-                    />
-                    <Moon className='size-4 text-white/80' />
-                  </div>
+              <div className='flex w-full items-center justify-between px-2 cursor-pointer'>
+                <h1 className='text-xl font-bold text-white'>Moji</h1>
+                <div className='flex items-center gap-2'>
+                  <Sun className='size-4 text-white/80' />
+                  <Switch
+                    checked={isDark}
+                    onCheckedChange={toggleTheme}
+                    className='data-[state=checked]:bg-background/80'
+                  />
+                  <Moon className='size-4 text-white/80' />
                 </div>
-              </a>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -66,11 +65,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
 
         <SidebarGroup>
-          <div className='flex items-center justify-between '>
+          <div className='flex items-center justify-between'>
             <SidebarGroupLabel className='uppercase'>
-              {"Nhóm chat"}
+              Nhóm chat
             </SidebarGroupLabel>
-
             <NewGroupChatModal />
           </div>
 
@@ -81,7 +79,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         <SidebarGroup>
           <SidebarGroupLabel className='uppercase'>
-            {"Bạn bè"}
+            Bạn bè
           </SidebarGroupLabel>
           <AddFriendModal />
           <SidebarGroupContent>
@@ -90,7 +88,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
+      <SidebarFooter className='pb-[max(0.5rem,env(safe-area-inset-bottom))]'>
+        {user && <NavUser user={user} />}
+      </SidebarFooter>
     </Sidebar>
   );
 }

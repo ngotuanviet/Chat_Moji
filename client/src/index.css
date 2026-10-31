@@ -214,10 +214,12 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply text-slate-800 dark:text-slate-200 bg-background;
+    touch-action: manipulation;
   }
 }
 
