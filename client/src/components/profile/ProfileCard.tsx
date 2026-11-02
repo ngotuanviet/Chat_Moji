@@ -1,10 +1,13 @@
+import { useRef, useState } from "react";
 import UserAvatar from "@/components/chat/UserAvatar";
-import AvatarUploader from "@/components/profile/AvatarUploader";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSocketStore } from "@/stores/useSocketStore";
+import { useUserStore } from "@/stores/useUserStore";
 import type { User } from "@/types/user";
+import { Camera, Calendar, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ProfileCardProps {
   user: User | null;
@@ -12,56 +15,142 @@ interface ProfileCardProps {
 
 const ProfileCard = ({ user }: ProfileCardProps) => {
   const { onlineUsers } = useSocketStore();
+  const { updateAvatarUrl } = useUserStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
   if (!user) return null;
-  if (!user.bio) {
-    user.bio = "Will code for food";
-  }
-
   const isOnline = onlineUsers.includes(user._id);
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.warning("Vui lòng chọn tệp hình ảnh");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.warning("Kích thước ảnh tối đa là 10MB");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      await updateAvatarUrl(formData);
+      toast.success("Cập nhật ảnh đại diện thành công!");
+    } catch {
+      toast.error("Không thể cập nhật ảnh đại diện");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const formattedDate = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("vi-VN", {
+        month: "2-digit",
+        year: "numeric",
+      })
+    : null;
+
   return (
-    <Card className='overflow-hidden p-0 min-h-48 h-auto sm:h-52 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl'>
-      <CardContent className='pt-8 sm:pt-0 sm:mt-20 p-4 sm:p-6 pb-6 sm:pb-8 flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-6 text-white'>
-        <div className='relative shrink-0'>
+    <div className='relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card via-card to-primary/5 p-4 sm:p-5 shadow-xs'>
+      {/* Decorative ambient glow */}
+      <div className='pointer-events-none absolute -right-12 -top-12 size-40 rounded-full bg-primary/10 blur-3xl' />
+
+      <div className='relative flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5'>
+        {/* Avatar with hover upload overlay */}
+        <div className='relative group/avatar shrink-0'>
           <UserAvatar
             type='profile'
             name={user.displayName}
-            avatarUrl={user.avatarUrl || undefined}
-            className='ring-4 ring-white shadow-lg size-20 sm:size-24'
+            avatarUrl={user.avatarUrl}
+            className='size-18 sm:size-20 ring-2 ring-primary/20 shadow-md text-xl sm:text-2xl'
           />
-          <AvatarUploader />
+
+          <button
+            type='button'
+            disabled={uploading}
+            onClick={() => fileInputRef.current?.click()}
+            className='absolute inset-0 rounded-full bg-black/40 text-white flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 cursor-pointer backdrop-blur-xs'
+            title='Nhấp để đổi ảnh đại diện'
+          >
+            {uploading ? (
+              <Loader2 className='size-5 animate-spin' />
+            ) : (
+              <>
+                <Camera className='size-4' />
+                <span className='text-[10px] font-medium mt-0.5'>Đổi ảnh</span>
+              </>
+            )}
+          </button>
+
+          {/* Mini camera badge for mobile/accessibility */}
+          <Button
+            type='button'
+            size='icon'
+            variant='secondary'
+            disabled={uploading}
+            onClick={() => fileInputRef.current?.click()}
+            className='absolute -bottom-1 -right-1 size-6 rounded-full shadow-md sm:hidden border border-border'
+          >
+            <Camera className='size-3' />
+          </Button>
+
+          <input
+            type='file'
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept='image/*'
+            className='hidden'
+          />
         </div>
-        {/* user Info */}
-        <div className='text-center sm:text-left flex-1 min-w-0'>
-          <h1 className='text-xl sm:text-2xl font-bold tracking-tight truncate'>
-            {user.displayName}
-          </h1>
-          {user.bio && (
-            <p className='text-white/80 text-xs sm:text-sm mt-1 sm:mt-2 max-w-lg line-clamp-2'>
-              {user.bio}
+
+        {/* User Details */}
+        <div className='flex flex-1 flex-col items-center sm:items-start min-w-0 text-center sm:text-left'>
+          <div className='flex flex-wrap items-center justify-center sm:justify-start gap-2'>
+            <h2 className='text-lg sm:text-xl font-bold text-foreground truncate'>
+              {user.displayName}
+            </h2>
+            <Badge
+              variant='outline'
+              className={cn(
+                "px-2 py-0.5 text-[11px] font-medium rounded-full flex items-center gap-1.5",
+                isOnline
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                  : "bg-muted text-muted-foreground border-border/60",
+              )}
+            >
+              <span
+                className={cn(
+                  "size-1.5 rounded-full",
+                  isOnline ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground",
+                )}
+              />
+              {isOnline ? "Trực tuyến" : "Ngoại tuyến"}
+            </Badge>
+          </div>
+
+          <p className='text-xs text-muted-foreground mt-0.5'>
+            @{user.username}
+          </p>
+
+          <p className='text-xs sm:text-sm text-foreground/80 mt-1.5 line-clamp-2 max-w-lg'>
+            {user.bio || "Chưa có lời giới thiệu bản thân."}
+          </p>
+
+          {formattedDate && (
+            <p className='text-[11px] text-muted-foreground flex items-center gap-1 mt-2'>
+              <Calendar className='size-3' />
+              <span>Tham gia từ tháng {formattedDate}</span>
             </p>
           )}
         </div>
-
-        <Badge
-          className={cn(
-            "flex items-center gap-1.5 capitalize shrink-0 self-center sm:self-end px-3 py-1",
-            isOnline
-              ? "bg-green-100 text-green-700 hover:bg-green-100"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-100",
-          )}
-        >
-          <div
-            className={cn(
-              "size-2 rounded-full",
-              isOnline ? "bg-green-500 animate-pulse" : "bg-slate-500",
-            )}
-          />
-          {isOnline ? "Online" : "Offline"}
-        </Badge>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

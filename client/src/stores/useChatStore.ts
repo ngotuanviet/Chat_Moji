@@ -1,6 +1,7 @@
 import { persist } from "zustand/middleware";
 import { create } from "zustand";
 import type { ChatState } from "@/types/store";
+import type { Conversation } from "@/types/chat";
 import { chatService } from "@/services/chatService";
 
 import { useAuthStore } from "./useAuthStore";
@@ -40,9 +41,8 @@ export const useChatStore = create<ChatState>()(
         const convoId = conversationId || activeConversationId;
         if (!convoId) return;
         const current = messages?.[convoId];
-        const nextCursor =
-          current?.nextCursor === undefined ? "" : current?.nextCursor;
-        if (nextCursor === null) return; // đã hết trang
+        if (current?.items.length && !current.hasMore) return;
+        const nextCursor = current?.nextCursor || undefined;
         set({ messageLoading: true });
         try {
           const { messages: fetched, cursor } = await chatService.fetchMessages(
@@ -62,8 +62,8 @@ export const useChatStore = create<ChatState>()(
                 ...state.messages,
                 [convoId]: {
                   items: merged,
-                  hasMore: !!cursor,
-                  nextCursor: cursor || undefined,
+                  hasMore: Boolean(cursor),
+                  nextCursor: cursor ?? null,
                 },
               },
             };
@@ -74,13 +74,13 @@ export const useChatStore = create<ChatState>()(
           set({ messageLoading: false });
         }
       },
-      sendDirectMessage: async (recipientId, content, imgUrl) => {
+      sendDirectMessage: async (recipientId, content, image) => {
         try {
           const { activeConversationId } = get();
           const sentMessage = await chatService.sendDirectMessage(
             recipientId,
             content,
-            imgUrl,
+            image,
             activeConversationId || undefined,
           );
           const convoId = activeConversationId || sentMessage.conversationId;
@@ -109,14 +109,15 @@ export const useChatStore = create<ChatState>()(
           });
         } catch (error) {
           console.error("Lỗi xảy ra khi gửi directMessage: " + error);
+          throw error;
         }
       },
-      sendGroupMessage: async (conversationId, content, imgUrl) => {
+      sendGroupMessage: async (conversationId, content, image) => {
         try {
           const sentMessage = await chatService.sendGroupMessage(
             conversationId,
             content,
-            imgUrl,
+            image,
           );
           set((state) => {
             const safeConversations = Array.isArray(state.conversations)
@@ -140,6 +141,7 @@ export const useChatStore = create<ChatState>()(
           });
         } catch (error) {
           console.error("Lỗi xảy ra gửi group Message: " + error);
+          throw error;
         }
       },
       addMessage: async (message) => {
@@ -164,7 +166,7 @@ export const useChatStore = create<ChatState>()(
                 [convoId]: {
                   items: [...currentItems, message],
                   hasMore: state.messages[convoId]?.hasMore ?? false,
-                  nextCursor: state.messages[convoId]?.nextCursor,
+                  nextCursor: state.messages[convoId]?.nextCursor ?? null,
                 },
               },
             };
@@ -179,8 +181,8 @@ export const useChatStore = create<ChatState>()(
             ? state.conversations
             : []
           ).map((c) =>
-            c._id === (conversation as any)._id
-              ? { ...c, ...(conversation as any) }
+            c._id === conversation._id
+              ? { ...c, ...conversation }
               : c,
           ),
         }));
@@ -193,10 +195,10 @@ export const useChatStore = create<ChatState>()(
           const existingIndex = safeConversations.findIndex(
             (c) => c._id === convo._id,
           );
-          let updatedConversations: any[];
+          let updatedConversations: Conversation[];
           if (existingIndex > -1) {
             const existing = safeConversations[existingIndex];
-            const merged = { ...existing, ...convo };
+            const merged: Conversation = { ...existing, ...convo };
             updatedConversations = [
               merged,
               ...safeConversations.filter((c) => c._id !== convo._id),
@@ -205,6 +207,20 @@ export const useChatStore = create<ChatState>()(
             updatedConversations = [convo, ...safeConversations];
           }
           return { conversations: updatedConversations };
+        });
+      },
+      removeConversation: (conversationId) => {
+        set((state) => {
+          const remainingMessages = { ...state.messages };
+          delete remainingMessages[conversationId];
+          return {
+            conversations: state.conversations.filter((conversation) => conversation._id !== conversationId),
+            messages: remainingMessages,
+            activeConversationId:
+              state.activeConversationId === conversationId
+                ? null
+                : state.activeConversationId,
+          };
         });
       },
       markAsSeen: async () => {
@@ -272,8 +288,41 @@ export const useChatStore = create<ChatState>()(
             "Lỗi xảy ra khi gọi createConversation trong store",
             error,
           );
+          throw error;
         } finally {
           set({ loading: false });
+        }
+      },
+      updateGroup: async (conversationId, name, image) => {
+        try {
+          const conversation = await chatService.updateGroup(conversationId, name, image);
+          get().upsertConversation(conversation);
+        } catch (error) {
+          console.error("Lỗi khi cập nhật nhóm", error);
+          throw error;
+        }
+      },
+      addGroupParticipants: async (conversationId, memberIds) => {
+        try {
+          const conversation = await chatService.addGroupParticipants(conversationId, memberIds);
+          get().upsertConversation(conversation);
+        } catch (error) {
+          console.error("Lỗi khi thêm thành viên nhóm", error);
+          throw error;
+        }
+      },
+      removeGroupParticipant: async (conversationId, userId) => {
+        try {
+          const currentUserId = useAuthStore.getState().user?._id;
+          const conversation = await chatService.removeGroupParticipant(conversationId, userId);
+          if (userId === currentUserId || !conversation) {
+            get().removeConversation(conversationId);
+          } else {
+            get().upsertConversation(conversation);
+          }
+        } catch (error) {
+          console.error("Lỗi khi rời/xoá thành viên nhóm", error);
+          throw error;
         }
       },
     }),

@@ -6,7 +6,7 @@ import { useChatStore } from "@/stores/useChatStore";
 import { useFriendStore } from "@/stores/useFriendStore";
 import { toast } from "sonner";
 
-const baseUrl = import.meta.env.VITE_SOCKET_URL;
+const baseUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:5001";
 
 export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
@@ -42,7 +42,13 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
       const lastMessage = {
         _id: message?._id || conversation?.lastMessage?._id,
-        content: message?.content || conversation?.lastMessage?.content,
+        content:
+          message?.content ||
+          conversation?.lastMessage?.content ||
+          (message?.imgUrl || conversation?.lastMessage?.imgUrl
+            ? "📷 Hình ảnh"
+            : ""),
+        imgUrl: message?.imgUrl || conversation?.lastMessage?.imgUrl || null,
         createdAt: message?.createdAt || conversation?.lastMessage?.createdAt,
         sender: {
           _id: message?.senderId || conversation?.lastMessage?.senderId,
@@ -100,9 +106,20 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       useChatStore.getState().updateConversaton(updated);
     });
 
+    socket.on("conversation-updated", (conversation) => {
+      if (conversation?._id) {
+        socket.emit("join-conversation", conversation._id);
+        useChatStore.getState().upsertConversation(conversation);
+      }
+    });
+
+    socket.on("conversation-removed", (conversationId) => {
+      useChatStore.getState().removeConversation(conversationId);
+    });
+
     // new group
     socket.on("new-group", (conversation) => {
-      useChatStore.getState().addConvo(conversation);
+      useChatStore.getState().upsertConversation(conversation);
       socket.emit("join-conversation", conversation._id);
     });
 
@@ -111,6 +128,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       // Cập nhật lại danh sách lời mời
       useFriendStore.getState().getAllFriendRequests();
 
+      if (useAuthStore.getState().user?.notificationsEnabled === false) return;
       const senderName = from?.displayName || "Một người dùng";
       const messagePreview = request?.message
         ? `"${request.message}"`
@@ -129,6 +147,26 @@ export const useSocketStore = create<SocketState>((set, get) => ({
           },
         },
       });
+    });
+
+    socket.on("friend-request-accepted", ({ friend }) => {
+      useFriendStore.getState().getFriends();
+      useFriendStore.getState().getAllFriendRequests();
+      if (useAuthStore.getState().user?.notificationsEnabled !== false) {
+        toast.success(`${friend?.displayName || "Một người dùng"} đã trở thành bạn bè của bạn`);
+      }
+    });
+
+    socket.on("friend-request-declined", ({ requestId }) => {
+      useFriendStore.setState((state) => ({
+        sendList: state.sendList.filter((request) => request._id !== requestId),
+      }));
+    });
+
+    socket.on("friend-request-cancelled", ({ requestId }) => {
+      useFriendStore.setState((state) => ({
+        receivedList: state.receivedList.filter((request) => request._id !== requestId),
+      }));
     });
   },
   disconnectSocket: () => {

@@ -14,11 +14,14 @@ export interface SeenUser {
 export interface Group {
   name: string;
   createdBy: string;
+  avatarUrl?: string | null;
+  avatarId?: string | null;
 }
 
 export interface LastMessage {
   _id: string;
-  content: string;
+  content: string | null;
+  imgUrl?: string | null;
   createdAt: string;
   sender: {
     _id: string;
@@ -30,7 +33,7 @@ export interface LastMessage {
 export interface Conversation {
   _id: string;
   type: "direct" | "group";
-  group: Group;
+  group?: Group | null;
   participants: Participant[];
   lastMessageAt: string;
   seenBy: SeenUser[];

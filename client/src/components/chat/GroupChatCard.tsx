@@ -4,6 +4,7 @@ import type { Conversation } from "@/types/chat";
 import ChatCard from "./ChatCard";
 import UnreadCountBadge from "./UnreadCountBadge";
 import GroupChatAvatar from "./GroupChatAvatar";
+import { cn } from "@/lib/utils";
 
 const GroupChatCard = ({ convo }: { convo: Conversation }) => {
   const { user } = useAuthStore();
@@ -31,18 +32,33 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
           ? new Date(convo.lastMessage.createdAt)
           : undefined
       }
-      isActive={activeConversationId == convo._id}
+      isActive={activeConversationId === convo._id}
       onSelect={handleSelectConversation}
       unreadCount={unreadCount}
       leftSection={
         <>
+          <GroupChatAvatar
+            participants={convo.participants}
+            type='sidebar'
+            avatarUrl={convo.group?.avatarUrl}
+            name={name}
+          />
           {unreadCount > 0 && <UnreadCountBadge unreadCount={unreadCount} />}
-          <GroupChatAvatar participants={convo.participants} type='chat' />
         </>
       }
       subtitle={
-        <p className='text-base truncate text-muted-foreground'>
-          {convo.participants.length} Thành viên
+        <p
+          className={cn(
+            "text-xs sm:text-sm truncate",
+            unreadCount > 0
+              ? "font-semibold text-foreground"
+              : "text-muted-foreground",
+          )}
+        >
+          {convo.lastMessage?.content ||
+            (convo.lastMessage?.imgUrl
+              ? "📷 Hình ảnh"
+              : `${convo.participants.length} thành viên`)}
         </p>
       }
     />

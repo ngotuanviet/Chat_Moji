@@ -1,8 +1,18 @@
 import FriendRequestsItem from "@/components/friendRequest/FriendRequestsItem";
 import { useFriendStore } from "@/stores/useFriendStore";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const SentRequests = () => {
-  const { sendList } = useFriendStore();
+  const { sendList, cancelRequest, loading } = useFriendStore();
+  const handleCancel = async (requestId: string) => {
+    try {
+      await cancelRequest(requestId);
+      toast.info("Đã huỷ lời mời kết bạn");
+    } catch {
+      toast.error("Không thể huỷ lời mời. Vui lòng thử lại.");
+    }
+  };
   if (!sendList || sendList.length === 0) {
     return (
       <p className='text-sm text-muted-foreground'>
@@ -19,7 +29,14 @@ const SentRequests = () => {
           requestInfo={req}
           type='sent'
           actions={
-            <p className='text-muted-foreground text-sm'>Đang chờ trả lời...</p>
+            <Button
+              size='sm'
+              variant='outline'
+              disabled={loading}
+              onClick={() => handleCancel(req._id)}
+            >
+              Huỷ lời mời
+            </Button>
           }
         />
       ))}

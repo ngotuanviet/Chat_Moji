@@ -6,9 +6,9 @@ import { LogOut } from "lucide-react";
 const Logout = () => {
   const { signOut } = useAuthStore();
   const navigate = useNavigate();
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
-      signOut();
+      await signOut();
       navigate("/signin");
     } catch (error) {
       console.error(error);
@@ -17,11 +17,11 @@ const Logout = () => {
   return (
     <Button
       variant='ghost'
-      className='w-full justify-start p-0 h-auto hover:bg-transparent'
+      className='w-full justify-start p-0 h-auto hover:bg-transparent text-destructive hover:text-destructive'
       onClick={handleLogout}
     >
-      <LogOut className='text-destructive' />
-      <span className='text-destructive'>Log out</span>
+      <LogOut className='size-4 text-destructive mr-2' />
+      <span>Đăng xuất</span>
     </Button>
   );
 };

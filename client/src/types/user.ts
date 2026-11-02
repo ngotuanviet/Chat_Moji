@@ -8,6 +8,8 @@ export interface User {
   phone?: string;
   createdAt?: string;
   updatedAt?: string;
+  showOnline?: boolean;
+  notificationsEnabled?: boolean;
 }
 
 export interface Friend {

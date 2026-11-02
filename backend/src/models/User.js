@@ -3,34 +3,34 @@ const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
       trim: true,
       lowercase: true,
     },
     hashedPassword: {
       type: String,
-      require: true,
+      required: true,
     },
     email: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
       trim: true,
       lowercase: true,
     },
     displayName: {
       type: String,
-      require: true,
+      required: true,
       trim: true,
     },
     avatarUrl: {
       type: String, // link cdn
-      require: true,
+      default: null,
     },
     avatarId: {
       type: String, // Cloudinary public_id đề xoá hình
-      require: true,
+      default: null,
     },
     bio: {
       type: String,
@@ -39,6 +39,14 @@ const userSchema = new mongoose.Schema(
     phone: {
       type: String,
       sparse: true, // cho phép null, nhưng không được trùng
+    },
+    showOnline: {
+      type: Boolean,
+      default: true,
+    },
+    notificationsEnabled: {
+      type: Boolean,
+      default: true,
     },
   },
   {

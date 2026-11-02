@@ -27,6 +27,14 @@ const groupSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    avatarUrl: {
+      type: String,
+      default: null,
+    },
+    avatarId: {
+      type: String,
+      default: null,
+    },
   },
   {
     _id: false,
@@ -37,6 +45,10 @@ const lastMessageSchema = new mongoose.Schema(
   {
     _id: { type: mongoose.Schema.Types.ObjectId },
     content: {
+      type: String,
+      default: null,
+    },
+    imgUrl: {
       type: String,
       default: null,
     },

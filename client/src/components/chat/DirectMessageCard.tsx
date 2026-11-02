@@ -24,7 +24,9 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
     ? "online"
     : "offline";
   const unreadCount = convo.unreadCounts?.[user._id] ?? 0;
-  const lastMessage = convo.lastMessage?.content ?? "";
+  const lastMessage =
+    convo.lastMessage?.content ||
+    (convo.lastMessage?.imgUrl ? "📷 Hình ảnh" : "");
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id);
     if (!messages[id]) {
@@ -50,18 +52,16 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
             name={otherUser.displayName ?? ""}
             avatarUrl={otherUser.avatarUrl ?? undefined}
           />
-          {/* todo: socket io */}
           <StatusBadge status={directUserStatus} />
-
           {unreadCount > 0 && <UnreadCountBadge unreadCount={unreadCount} />}
         </>
       }
       subtitle={
         <p
           className={cn(
-            "text-base truncate",
+            "text-xs sm:text-sm truncate",
             unreadCount > 0
-              ? "font-medium text-foreground"
+              ? "font-semibold text-foreground"
               : "text-muted-foreground",
           )}
         >

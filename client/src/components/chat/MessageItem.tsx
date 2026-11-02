@@ -73,9 +73,21 @@ const MessageItem = ({
                 : "bg-chat-bubble-received rounded-bl-xs",
             )}
           >
-            <p className='text-sm sm:text-base leading-relaxed break-words'>
-              {message.content}
-            </p>
+            {message.imgUrl && (
+              <a href={message.imgUrl} target='_blank' rel='noreferrer'>
+                <img
+                  src={message.imgUrl}
+                  alt='Ảnh đính kèm'
+                  loading='lazy'
+                  className='mb-2 max-h-80 max-w-full rounded-xl object-contain'
+                />
+              </a>
+            )}
+            {message.content && (
+              <p className='text-sm leading-relaxed break-words sm:text-base'>
+                {message.content}
+              </p>
+            )}
           </Card>
 
           {/* seen / delivered */}

@@ -293,10 +293,28 @@
   .shadow-bubble {
     box-shadow: var(--shadow-bubble);
   }
-  /* scrollbar */
-  .beautiful-scrollbar {
-    @apply scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent dark:scrollbar-thumb-slate-600;
+
+  /* Modern clean scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
   }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.25);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.45);
+  }
+
+  .beautiful-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.25) transparent;
+  }
+
   /* Animations */
   .transition-bounce {
     transition: var(--transition-bounce);

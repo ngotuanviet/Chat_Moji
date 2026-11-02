@@ -1,6 +1,7 @@
 import type { Socket } from "socket.io-client";
 import type { Conversation, Message } from "./chat";
 import type { Friend, FriendRequest, User } from "./user";
+
 export interface AuthState {
   accessToken: string | null;
   user: User | null;
@@ -20,11 +21,13 @@ export interface AuthState {
   fetchMe: () => Promise<void>;
   refresh: () => Promise<void>;
 }
+
 export interface ThemeState {
   isDark: boolean;
   toggleTheme: () => void;
   setTheme: (isDark: boolean) => void;
 }
+
 export interface ChatState {
   conversations: Conversation[];
   messages: Record<
@@ -32,7 +35,7 @@ export interface ChatState {
     {
       items: Message[];
       hasMore: boolean;
-      nextCursor?: string;
+      nextCursor?: string | null;
     }
   >; // key = conversationId
   activeConversationId: string | null;
@@ -46,18 +49,19 @@ export interface ChatState {
   sendDirectMessage: (
     recipientId: string,
     content: string,
-    imgUrl?: string,
+    image?: File,
   ) => Promise<void>;
   sendGroupMessage: (
     conversationId: string,
     content: string,
-    imgUrl?: string,
+    image?: File,
   ) => Promise<void>;
   // add Message
   addMessage: (message: Message) => Promise<void>;
   // update convo
-  updateConversaton: (conversation: unknown) => void;
-  upsertConversation: (conversation: any) => void;
+  updateConversaton: (conversation: Partial<Conversation> & { _id: string }) => void;
+  upsertConversation: (conversation: Conversation) => void;
+  removeConversation: (conversationId: string) => void;
   markAsSeen: () => Promise<void>;
   addConvo: (convo: Conversation) => void;
   createConversation: (
@@ -65,13 +69,18 @@ export interface ChatState {
     name: string,
     memberIds: string[],
   ) => Promise<void>;
+  updateGroup: (conversationId: string, name?: string, image?: File) => Promise<void>;
+  addGroupParticipants: (conversationId: string, memberIds: string[]) => Promise<void>;
+  removeGroupParticipant: (conversationId: string, userId: string) => Promise<void>;
 }
+
 export interface SocketState {
   socket: Socket | null;
   onlineUsers: string[];
   connectSocket: () => void;
   disconnectSocket: () => void;
 }
+
 export interface FriendState {
   loading: boolean;
   friends: Friend[];
@@ -84,9 +93,14 @@ export interface FriendState {
   getAllFriendRequests: () => Promise<void>;
   acceptRequest: (requestId: string) => Promise<void>;
   declineRequest: (requestId: string) => Promise<void>;
+  cancelRequest: (requestId: string) => Promise<void>;
   getFriends: () => Promise<void>;
 }
+
 export interface UserState {
   updateAvatarUrl: (formData: FormData) => Promise<void>;
   updateInfo: (data: Partial<User>) => Promise<void>;
+  updatePreferences: (data: Pick<User, "showOnline" | "notificationsEnabled">) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  deleteAccount: (password: string) => Promise<void>;
 }

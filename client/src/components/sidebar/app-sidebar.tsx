@@ -8,9 +8,6 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Switch } from "@/components/ui/switch";
 import { Moon, Sun } from "lucide-react";
@@ -33,28 +30,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant='inset' {...props}>
       <SidebarHeader className='pt-[max(0.5rem,env(safe-area-inset-top))]'>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size='lg'
-              asChild
-              className='bg-gradient-primary'
-            >
-              <div className='flex w-full items-center justify-between px-2 cursor-pointer'>
-                <h1 className='text-xl font-bold text-white'>Moji</h1>
-                <div className='flex items-center gap-2'>
-                  <Sun className='size-4 text-white/80' />
-                  <Switch
-                    checked={isDark}
-                    onCheckedChange={toggleTheme}
-                    className='data-[state=checked]:bg-background/80'
-                  />
-                  <Moon className='size-4 text-white/80' />
-                </div>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className='flex items-center justify-between rounded-xl bg-gradient-primary px-3 py-2.5 shadow-xs'>
+          <h1 className='text-lg font-bold text-white tracking-wide'>
+            Moji
+          </h1>
+          <div className='flex items-center gap-1.5'>
+            <Sun className='size-3.5 text-white/80' />
+            <Switch
+              checked={isDark}
+              onCheckedChange={toggleTheme}
+              className='data-[state=checked]:bg-background/80'
+              aria-label='Chuyển đổi giao diện sáng tối'
+            />
+            <Moon className='size-3.5 text-white/80' />
+          </div>
+        </div>
       </SidebarHeader>
 
       <SidebarContent className='beautiful-scrollbar'>
@@ -66,7 +56,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         <SidebarGroup>
           <div className='flex items-center justify-between'>
-            <SidebarGroupLabel className='uppercase'>
+            <SidebarGroupLabel className='uppercase font-semibold text-xs tracking-wider'>
               Nhóm chat
             </SidebarGroupLabel>
             <NewGroupChatModal />
@@ -78,10 +68,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className='uppercase'>
-            Bạn bè
-          </SidebarGroupLabel>
-          <AddFriendModal />
+          <div className='flex items-center justify-between'>
+            <SidebarGroupLabel className='uppercase font-semibold text-xs tracking-wider'>
+              Bạn bè
+            </SidebarGroupLabel>
+            <AddFriendModal />
+          </div>
+
           <SidebarGroupContent>
             {convoLoading ? <ConversationSkeleton /> : <DirectMessageList />}
           </SidebarGroupContent>

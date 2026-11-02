@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useChatStore } from "@/stores/useChatStore";
 import type { Conversation } from "@/types/chat";
 import { SidebarTrigger } from "../ui/sidebar";
@@ -6,10 +7,11 @@ import { Separator } from "@radix-ui/react-separator";
 import UserAvatar from "./UserAvatar";
 import StatusBadge from "./StatusBadge";
 import GroupChatAvatar from "./GroupChatAvatar";
+import GroupSettingsModal from "./GroupSettingsModal";
 import { useSocketStore } from "@/stores/useSocketStore";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Users } from "lucide-react";
 
 const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
   const { conversations, activeConversationId, setActiveConversation } =
@@ -17,6 +19,8 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
   const { user } = useAuthStore();
   const { onlineUsers } = useSocketStore();
   const isMobile = useIsMobile();
+  const [isGroupSettingsOpen, setIsGroupSettingsOpen] = useState(false);
+
   let otherUser;
 
   chat = chat ?? conversations.find((c) => c._id === activeConversationId);
@@ -65,7 +69,14 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
           </>
         )}
 
-        <div className='flex flex-1 items-center gap-2.5 sm:gap-3 min-w-0 py-0.5'>
+        <div
+          className={`flex flex-1 items-center gap-2.5 sm:gap-3 min-w-0 py-0.5 ${
+            chat.type === "group" ? "cursor-pointer select-none" : ""
+          }`}
+          onClick={() => {
+            if (chat?.type === "group") setIsGroupSettingsOpen(true);
+          }}
+        >
           <div className='relative shrink-0'>
             {chat.type === "direct" ? (
               <>
@@ -80,11 +91,13 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
               <GroupChatAvatar
                 participants={chat.participants}
                 type='sidebar'
+                avatarUrl={chat.group?.avatarUrl}
+                name={chat.group?.name}
               />
             )}
           </div>
           <div className='flex flex-col min-w-0 flex-1'>
-            <h2 className='font-semibold text-foreground text-sm sm:text-base truncate leading-snug'>
+            <h2 className='font-semibold text-foreground text-sm sm:text-base truncate leading-snug hover:opacity-90'>
               {chat.type === "direct" ? otherUser?.displayName : chat.group?.name}
             </h2>
             <span className='text-xs text-muted-foreground truncate'>
@@ -92,10 +105,30 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
                 ? directUserStatus === "online"
                   ? "Đang hoạt động"
                   : "Ngoại tuyến"
-                : `${chat.participants.length} thành viên`}
+                : `${chat.participants.length} thành viên • Bấm để quản lý nhóm`}
             </span>
           </div>
         </div>
+
+        {chat.type === "group" && (
+          <>
+            <Button
+              variant='ghost'
+              size='icon'
+              className='size-9 shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted/50 cursor-pointer ml-auto'
+              onClick={() => setIsGroupSettingsOpen(true)}
+              title='Quản lý nhóm'
+            >
+              <Users className='size-5' />
+              <span className='sr-only'>Quản lý nhóm</span>
+            </Button>
+            <GroupSettingsModal
+              chat={chat}
+              open={isGroupSettingsOpen}
+              onOpenChange={setIsGroupSettingsOpen}
+            />
+          </>
+        )}
       </div>
     </header>
   );

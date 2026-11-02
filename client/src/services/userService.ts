@@ -18,5 +18,21 @@ export const userService = {
     }
     return res.data;
   },
+  updatePreferences: async (data: Pick<User, "showOnline" | "notificationsEnabled">) => {
+    const res = await api.patch<{ user: User }>("/user/preferences", data);
+    return res.data;
+  },
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    const res = await api.post<{ message: string }>("/user/change-password", {
+      currentPassword,
+      newPassword,
+    });
+    return res.data;
+  },
+  deleteAccount: async (password: string) => {
+    const res = await api.delete<{ message: string }>("/user/me", {
+      data: { password },
+    });
+    return res.data;
+  },
 };
-

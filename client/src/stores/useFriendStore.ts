@@ -77,6 +77,20 @@ export const useFriendStore = create<FriendState>((set, get) => ({
       set({ loading: false });
     }
   },
+  cancelRequest: async (requestId) => {
+    try {
+      set({ loading: true });
+      await friendService.cancelRequest(requestId);
+      set((state) => ({
+        sendList: state.sendList.filter((request) => request._id !== requestId),
+      }));
+    } catch (error) {
+      console.error("Lỗi khi huỷ lời mời kết bạn", error);
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
   getFriends: async () => {
     try {
       set({ loading: true });

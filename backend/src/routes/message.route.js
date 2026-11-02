@@ -4,7 +4,8 @@ import {
   sendGroupMessage,
 } from '../controllers/message.controller.js'
 import { checkFriendShip, checkGroupMembership } from '../middleware/friend.middleware.js';
+import { upload } from '../middleware/upload.middleware.js';
 const router = express.Router();
-router.post('/direct', checkFriendShip, sendDirectMessage)
-router.post('/group', checkGroupMembership, sendGroupMessage)
+router.post('/direct', upload.single('image'), checkFriendShip, sendDirectMessage)
+router.post('/group', upload.single('image'), checkGroupMembership, sendGroupMessage)
 export default router

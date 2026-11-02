@@ -41,7 +41,7 @@ const ChatWindowLayout = () => {
   return (
     <div className='grid h-full min-h-0 w-full min-w-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-none md:rounded-xl border-0 md:border md:border-border/60 bg-background shadow-none md:shadow-md'>
       <ChatWindowHeader chat={selectedConvo} />
-      <div className='min-h-0 overflow-hidden bg-primary-foreground'>
+      <div className='min-h-0 overflow-hidden bg-background'>
         <ChatWindowBody />
       </div>
       <MessageInput selectedConvo={selectedConvo} />
